@@ -155,6 +155,7 @@ var (
 	testFlag          = kingpin.Flag("tests", "Include test files for linters that support this option").Short('t').Bool()
 	deadlineFlag      = kingpin.Flag("deadline", "Cancel linters if they have not completed within this duration.").Default("5s").Duration()
 	errorsFlag        = kingpin.Flag("errors", "Only show errors.").Bool()
+	safeExitFlag      = kingpin.Flag("safe-exit", "Exit with status 0 unless one of the linters panic (ignore linter errors/warnings). Useful to integrate with arc lint.").Bool()
 )
 
 func init() {
@@ -330,7 +331,9 @@ Severity override map (default is "error"):
 			continue
 		}
 		fmt.Println(issue.String())
-		status = 1
+		if !*safeExitFlag {
+			status = 1
+		}
 	}
 	elapsed := time.Now().Sub(start)
 	debug("total elapsed time %s", elapsed)
